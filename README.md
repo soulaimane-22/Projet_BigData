@@ -1,8 +1,5 @@
 # 🛡️ Projet BigData — Détection d'Anomalies de Sécurité en Temps Réel
 
-> **Module** : Architecture et Technologies BigData — Master Sécurité IT & BigData  
-> **Deadline** : 15/06/2026 — Groupe de 3 — Plateforme 100% open-source
-
 ---
 
 ## 📌 Stack technique
@@ -163,14 +160,3 @@ Rafraîchissement automatique toutes les **5 secondes**.
 
 ---
 
-## 📚 Dataset
-
-**NSL-KDD** — 125 000 connexions réseau labelisées (normal + 22 types d'attaques)  
-Source : [https://www.unb.ca/cic/datasets/nsl.html](https://www.unb.ca/cic/datasets/nsl.html)
-
----
-
-## 👥 Équipe
-
-Projet réalisé dans le cadre du module **Architecture et Technologies BigData**  
-Master Sécurité IT & BigData — Département Génie Informatique
