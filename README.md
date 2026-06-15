@@ -74,7 +74,7 @@ pip install kafka-python pyspark psycopg2-binary
 ### 4. Lancer l'infrastructure (Kafka + Spark + PostgreSQL + Grafana)
 ```bash
 docker compose up -d
-docker ps   # vérifier que les 3 conteneurs sont Up
+docker ps   # vérifier que les 4 conteneurs sont Up
 ```
 
 ### 5. Créer le topic Kafka
