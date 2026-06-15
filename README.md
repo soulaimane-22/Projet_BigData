@@ -59,7 +59,7 @@ git clone https://github.com/soulaimane-22/Projet_BigData.git
 cd Projet_BigData
 ```
 
-### 2. Télécharger le dataset (non inclus dans Git)
+### 2. Dataset (déjà inclus dans le repo)
 ```bash
 cd producer
 wget https://raw.githubusercontent.com/defcom17/NSL_KDD/master/KDDTrain+.txt
@@ -74,7 +74,7 @@ pip install kafka-python pyspark psycopg2-binary
 ### 4. Lancer l'infrastructure (Kafka + Spark + PostgreSQL + Grafana)
 ```bash
 docker compose up -d
-docker ps   # vérifier que les 4 conteneurs sont Up
+docker ps   # vérifier que les 3 conteneurs sont Up
 ```
 
 ### 5. Créer le topic Kafka
@@ -94,7 +94,7 @@ python producer.py
 ### 7. Lancer Spark Structured Streaming — Terminal 2
 ```bash
 cd spark
-JAVA_HOME=~/java17 PATH=~/java17/bin:$PATH spark-submit \
+spark-submit \
   --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.0,org.postgresql:postgresql:42.7.3 \
   stream_processor.py
 ```
