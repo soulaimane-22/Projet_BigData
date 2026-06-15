@@ -41,6 +41,16 @@ services:
       retries: 10
       start_period: 20s
 
+  spark:
+    image: apache/spark:3.5.1
+    container_name: spark
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - ./spark:/opt/spark-apps
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+
   grafana:
     image: grafana/grafana:10.4.2
     container_name: grafana
