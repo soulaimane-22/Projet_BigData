@@ -1,4 +1,3 @@
-import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StringType
@@ -50,19 +49,8 @@ schema = (StructType()
     .add("difficulty",      StringType())
 )
 
-# Read hosts from environment — works locally and inside Docker
-KAFKA_HOST = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-PG_HOST    = os.environ.get("POSTGRES_HOST", "localhost")
-PG_PORT    = os.environ.get("POSTGRES_PORT", "5432")
-
-PG_URL   = f"jdbc:postgresql://{PG_HOST}:{PG_PORT}/bigdata"
-PG_PROPS = {
-    "user":     "admin",
-    "password": "secret",
-    "driver":   "org.postgresql.Driver"
-}
-
 # --- Session Spark ---
+# Packages passed via --packages in spark-submit, not hardcoded here
 spark = (SparkSession.builder
     .appName("SecuStream")
     .getOrCreate())
@@ -72,7 +60,7 @@ spark.sparkContext.setLogLevel("WARN")
 # --- Lecture Kafka ---
 raw = (spark.readStream
     .format("kafka")
-    .option("kafka.bootstrap.servers", KAFKA_HOST)
+    .option("kafka.bootstrap.servers", "localhost:9092")
     .option("subscribe", "security-events")
     .option("startingOffsets", "latest")
     .load())
@@ -90,7 +78,15 @@ alerts = events.filter(
 ).withColumn("rule", col("label"))
 
 # --- Sink PostgreSQL ---
+PG_URL = "jdbc:postgresql://localhost:5432/bigdata"
+PG_PROPS = {
+    "user":     "admin",
+    "password": "secret",
+    "driver":   "org.postgresql.Driver"
+}
+
 def write_to_postgres(batch_df, batch_id):
+    # persist() avoids scanning the batch twice (count + write)
     batch_df.persist()
     count = batch_df.count()
     if count == 0:
@@ -110,7 +106,7 @@ def write_to_postgres(batch_df, batch_id):
     print(f"Batch {batch_id} — {count} alertes écrites dans PostgreSQL")
     batch_df.unpersist()
 
-# --- Sink Parquet ---
+# --- Sink Parquet (historique) ---
 parquet_query = (events.writeStream
     .format("parquet")
     .option("path", "/tmp/bigdata/parquet")
@@ -119,11 +115,12 @@ parquet_query = (events.writeStream
     .start())
 
 # --- Sink PostgreSQL via foreachBatch ---
+# outputMode "append" is correct here — no aggregation, no "update" needed
 pg_query = (alerts.writeStream
     .foreachBatch(write_to_postgres)
     .option("checkpointLocation", "/tmp/bigdata/checkpoint_pg")
     .outputMode("append")
     .start())
 
-print(f"Spark Streaming démarré — Kafka: {KAFKA_HOST} — PostgreSQL: {PG_HOST}:{PG_PORT}")
+print("Spark Streaming démarré — en attente d'événements Kafka...")
 pg_query.awaitTermination()

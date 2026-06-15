@@ -15,16 +15,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-
-  spark:
-    image: apache/spark:3.5.1
-    container_name: spark
-    ports:
-      - "8080:8080"
-      - "7077:7077"
-    volumes:
-      - ./spark:/opt/spark-apps
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   postgres:
     image: postgres:16
@@ -38,6 +34,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d bigdata"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   grafana:
     image: grafana/grafana:10.4.2
@@ -54,7 +56,8 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
       - grafana_data:/var/lib/grafana
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

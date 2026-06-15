@@ -1,125 +1,222 @@
 {
   "uid": "bigdata-security",
-  "title": "Détection d'Anomalies — Cybersécurité NSL-KDD",
-  "tags": ["bigdata", "security"],
+  "title": "D\u00e9tection d'Anomalies \u2014 Cybers\u00e9curit\u00e9 NSL-KDD",
+  "tags": [
+    "bigdata",
+    "security"
+  ],
   "timezone": "browser",
   "schemaVersion": 38,
   "refresh": "5s",
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "panels": [
     {
       "id": 1,
-      "title": "Panel 1 — Alertes par type d'attaque",
+      "title": "Panel 1 \u2014 Alertes par type d'attaque",
       "type": "barchart",
-      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 9 },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
       "datasource": "PostgreSQL",
       "options": {
         "orientation": "horizontal",
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      },
-      "fieldConfig": {
-        "defaults": { "color": { "mode": "palette-classic" } },
-        "overrides": []
-      },
-      "targets": [{
-        "rawSql": "SELECT label AS \"Type d'attaque\", COUNT(*) AS \"Nombre\" FROM alerts WHERE label != 'normal' GROUP BY label ORDER BY COUNT(*) DESC LIMIT 15;",
-        "format": "table",
-        "refId": "A"
-      }]
-    },
-    {
-      "id": 2,
-      "title": "Panel 2 — Timeline des alertes (par minute)",
-      "type": "timeseries",
-      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 9 },
-      "datasource": "PostgreSQL",
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+          "color": {
+            "mode": "palette-classic"
+          }
         },
         "overrides": []
       },
-      "targets": [{
-        "rawSql": "SELECT date_trunc('minute', timestamp) AS time, COUNT(*) AS \"Alertes\" FROM alerts WHERE timestamp >= NOW() - INTERVAL '1 hour' GROUP BY 1 ORDER BY 1;",
-        "format": "time_series",
-        "refId": "B"
-      }]
+      "targets": [
+        {
+          "rawSql": "SELECT label AS \"Type d'attaque\", COUNT(*) AS \"Nombre\" FROM alerts WHERE label != 'normal' GROUP BY label ORDER BY COUNT(*) DESC LIMIT 15;",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Panel 2 \u2014 Timeline des alertes (par minute)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "datasource": "PostgreSQL",
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT date_trunc('minute', timestamp) AS time, COUNT(*) AS \"Alertes\" FROM alerts WHERE timestamp >= NOW() - INTERVAL '1 hour' GROUP BY 1 ORDER BY 1;",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Panel 3 — Top 10 services attaqués",
-      "type": "piechart",
-      "gridPos": { "x": 0, "y": 9, "w": 8, "h": 9 },
+      "title": "Panel 3 \u2014 Top 10 services attaqu\u00e9s",
+      "type": "barchart",
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 8,
+        "h": 9
+      },
       "datasource": "PostgreSQL",
       "options": {
-        "pieType": "pie",
-        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+        "orientation": "horizontal",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "xField": "service",
+        "colorByField": "service"
       },
       "fieldConfig": {
-        "defaults": { "color": { "mode": "palette-classic" } },
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80
+          }
+        },
         "overrides": []
       },
-      "targets": [{
-        "rawSql": "SELECT service, COUNT(*) AS total FROM alerts WHERE label != 'normal' GROUP BY service ORDER BY total DESC LIMIT 10;",
-        "format": "table",
-        "refId": "C"
-      }]
+      "targets": [
+        {
+          "rawSql": "SELECT service, COUNT(*) AS total FROM alerts WHERE label != 'normal' GROUP BY service ORDER BY total DESC LIMIT 10;",
+          "format": "table",
+          "refId": "C"
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Panel 4 — Protocoles (tcp / udp / icmp)",
-      "type": "piechart",
-      "gridPos": { "x": 8, "y": 9, "w": 8, "h": 9 },
+      "title": "Panel 4 \u2014 Protocoles (tcp / udp / icmp)",
+      "type": "barchart",
+      "gridPos": {
+        "x": 8,
+        "y": 9,
+        "w": 8,
+        "h": 9
+      },
       "datasource": "PostgreSQL",
       "options": {
-        "pieType": "donut",
-        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+        "orientation": "horizontal",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "xField": "protocol",
+        "colorByField": "protocol"
       },
       "fieldConfig": {
-        "defaults": { "color": { "mode": "palette-classic" } },
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 80
+          }
+        },
         "overrides": []
       },
-      "targets": [{
-        "rawSql": "SELECT protocol, COUNT(*) AS total FROM alerts GROUP BY protocol ORDER BY total DESC;",
-        "format": "table",
-        "refId": "D"
-      }]
+      "targets": [
+        {
+          "rawSql": "SELECT protocol, COUNT(*) AS total FROM alerts GROUP BY protocol ORDER BY total DESC;",
+          "format": "table",
+          "refId": "D"
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "Panel 5 — Compteurs globaux",
+      "title": "Panel 5 \u2014 Compteurs globaux",
       "type": "stat",
-      "gridPos": { "x": 16, "y": 9, "w": 8, "h": 9 },
+      "gridPos": {
+        "x": 16,
+        "y": 9,
+        "w": 8,
+        "h": 9
+      },
       "datasource": "PostgreSQL",
       "options": {
         "colorMode": "background",
         "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "red", "value": 200 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
             ]
           }
         },
         "overrides": []
       },
-      "targets": [{
-        "rawSql": "SELECT 'Total Alertes' AS metric, COUNT(*) AS value FROM alerts WHERE label != 'normal' UNION ALL SELECT 'Types distincts', COUNT(DISTINCT label) FROM alerts WHERE label != 'normal' UNION ALL SELECT 'Services touchés', COUNT(DISTINCT service) FROM alerts WHERE label != 'normal';",
-        "format": "table",
-        "refId": "E"
-      }]
+      "targets": [
+        {
+          "rawSql": "SELECT 'Total Alertes' AS metric, COUNT(*) AS value FROM alerts WHERE label != 'normal' UNION ALL SELECT 'Types distincts', COUNT(DISTINCT label) FROM alerts WHERE label != 'normal' UNION ALL SELECT 'Services touch\u00e9s', COUNT(DISTINCT service) FROM alerts WHERE label != 'normal';",
+          "format": "table",
+          "refId": "E"
+        }
+      ]
     }
   ]
 }
