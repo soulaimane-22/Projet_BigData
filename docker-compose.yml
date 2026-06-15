@@ -9,7 +9,7 @@ services:
       KAFKA_NODE_ID: 0
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
@@ -44,12 +44,41 @@ services:
   spark:
     image: apache/spark:3.5.1
     container_name: spark
-    ports:
-      - "8080:8080"
-      - "7077:7077"
+    user: "0"
     volumes:
       - ./spark:/opt/spark-apps
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    command: >
+      bash -c "mkdir -p /tmp/ivy2 &&
+      /opt/spark/bin/spark-submit
+      --conf spark.jars.ivy=/tmp/ivy2
+      --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.postgresql:postgresql:42.7.3
+      /opt/spark-apps/stream_processor.py"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+  producer:
+    image: python:3.11-slim
+    container_name: producer
+    working_dir: /app
+    volumes:
+      - ./producer:/app
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    command: >
+      bash -c "pip install kafka-python --quiet &&
+      python producer.py"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: on-failure
 
   grafana:
     image: grafana/grafana:10.4.2
